@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "allotment/dist/style.css";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
@@ -8,8 +10,69 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
+  overflow: hidden;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
+  }
+}
+
+/* Allotment dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .split-view-container {
+    --separator-border: rgba(255, 255, 255, 0.1);
+  }
+  .sash-container .sash {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+  .sash-container .sash:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* Shiki code block styles */
+.shiki {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.prose .shiki {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+/* Shiki dual theme: switch to dark colors via CSS variables */
+@media (prefers-color-scheme: dark) {
+  .shiki,
+  .shiki span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
   }
 }
