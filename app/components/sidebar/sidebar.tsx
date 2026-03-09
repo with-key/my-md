@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { DirectoryInput } from "./directory-input";
 import { FileTree } from "./file-tree";
+import { RecentPaths } from "./recent-paths";
+import { useRecentPaths } from "~/lib/use-recent-paths";
 import type { TreeNode } from "~/lib/types";
 
 interface SidebarProps {
@@ -13,8 +15,9 @@ interface SidebarProps {
 
 export function Sidebar({ fileTree, onTreeLoaded, onFileClick, error, onError }: SidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { paths: recentPaths, addPath, removePath } = useRecentPaths();
 
-  const handleSubmit = useCallback(
+  const loadDirectory = useCallback(
     async (path: string) => {
       setIsLoading(true);
       onError(null);
@@ -28,6 +31,7 @@ export function Sidebar({ fileTree, onTreeLoaded, onFileClick, error, onError }:
           onTreeLoaded([], "");
         } else {
           onTreeLoaded(data.tree, data.basePath);
+          addPath(data.basePath);
         }
       } catch {
         onError("Failed to connect to server.");
@@ -36,7 +40,7 @@ export function Sidebar({ fileTree, onTreeLoaded, onFileClick, error, onError }:
         setIsLoading(false);
       }
     },
-    [onTreeLoaded, onError]
+    [onTreeLoaded, onError, addPath]
   );
 
   return (
@@ -46,7 +50,8 @@ export function Sidebar({ fileTree, onTreeLoaded, onFileClick, error, onError }:
           Markdown Viewer
         </h1>
       </div>
-      <DirectoryInput onSubmit={handleSubmit} isLoading={isLoading} />
+      <DirectoryInput onSubmit={loadDirectory} isLoading={isLoading} />
+      <RecentPaths paths={recentPaths} onSelect={loadDirectory} onRemove={removePath} />
       <div className="flex-1 overflow-y-auto">
         {error && (
           <div className="p-3 m-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 rounded-md">
@@ -54,7 +59,7 @@ export function Sidebar({ fileTree, onTreeLoaded, onFileClick, error, onError }:
           </div>
         )}
         {fileTree && <FileTree tree={fileTree} onFileClick={onFileClick} />}
-        {!fileTree && !error && (
+        {!fileTree && !error && !recentPaths.length && (
           <div className="p-4 text-sm text-gray-400 dark:text-gray-600 text-center">
             Enter a directory path to browse markdown files.
           </div>

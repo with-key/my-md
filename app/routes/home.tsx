@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { Route } from "./+types/home";
 import { Sidebar } from "~/components/sidebar/sidebar";
 import { PanelContainer } from "~/components/panels/panel-container";
 import { DndProvider } from "~/components/dnd/dnd-provider";
-import type { TreeNode, PanelState } from "~/lib/types";
+import { usePersistedPanels } from "~/lib/use-persisted-panels";
+import type { TreeNode } from "~/lib/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,23 +13,30 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const DEFAULT_PANELS: PanelState[] = [
-  { id: "panel-1", filePath: null, fileName: null },
-  { id: "panel-2", filePath: null, fileName: null },
-  { id: "panel-3", filePath: null, fileName: null },
-];
-
 export default function Home() {
   const [fileTree, setFileTree] = useState<TreeNode[] | null>(null);
-  const [basePath, setBasePath] = useState("");
-  const [panels, setPanels] = useState<PanelState[]>(DEFAULT_PANELS);
-  const [panelCount, setPanelCount] = useState(1);
+  const { panels, setPanels, panelCount, setPanelCount, basePath, setBasePath, initialized } = usePersistedPanels();
   const [error, setError] = useState<string | null>(null);
+  const restoredRef = useRef(false);
+
+  // Restore file tree from persisted basePath on mount
+  useEffect(() => {
+    if (!initialized || restoredRef.current || !basePath) return;
+    restoredRef.current = true;
+    fetch(`/api/file-tree?path=${encodeURIComponent(basePath)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          setFileTree(data.tree.length > 0 ? data.tree : null);
+        }
+      })
+      .catch(() => {});
+  }, [initialized, basePath]);
 
   const handleTreeLoaded = useCallback((tree: TreeNode[], path: string) => {
     setFileTree(tree.length > 0 ? tree : null);
     setBasePath(path);
-  }, []);
+  }, [setBasePath]);
 
   const openFileInPanel = useCallback(
     (panelId: string, filePath: string, fileName: string) => {
@@ -36,21 +44,19 @@ export default function Home() {
         prev.map((p) => (p.id === panelId ? { ...p, filePath, fileName } : p))
       );
     },
-    []
+    [setPanels]
   );
 
   const handleFileClick = useCallback(
     (filePath: string, fileName: string) => {
       const visiblePanels = panels.slice(0, panelCount);
 
-      // Find first empty panel
       const emptyPanel = visiblePanels.find((p) => !p.filePath);
       if (emptyPanel) {
         openFileInPanel(emptyPanel.id, filePath, fileName);
         return;
       }
 
-      // If we can add a panel, do it
       if (panelCount < 3) {
         const newCount = panelCount + 1;
         setPanelCount(newCount);
@@ -58,10 +64,9 @@ export default function Home() {
         return;
       }
 
-      // All panels full — replace the first one
       openFileInPanel(visiblePanels[0].id, filePath, fileName);
     },
-    [panels, panelCount, openFileInPanel]
+    [panels, panelCount, openFileInPanel, setPanelCount]
   );
 
   const handleCloseFile = useCallback((panelId: string) => {
@@ -70,7 +75,7 @@ export default function Home() {
         p.id === panelId ? { ...p, filePath: null, fileName: null } : p
       )
     );
-  }, []);
+  }, [setPanels]);
 
   const handleFileDropped = useCallback(
     (panelId: string, filePath: string, fileName: string) => {
