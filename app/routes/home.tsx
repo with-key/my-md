@@ -4,11 +4,13 @@ import { Sidebar } from "~/components/sidebar/sidebar";
 import { PanelContainer } from "~/components/panels/panel-container";
 import { DndProvider } from "~/components/dnd/dnd-provider";
 import { usePersistedPanels } from "~/lib/use-persisted-panels";
+import { useIgnorePatterns } from "~/lib/use-ignore-patterns";
+import { useTheme } from "~/lib/use-theme";
 import type { TreeNode } from "~/lib/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Markdown Viewer" },
+    { title: "3plit" },
     { name: "description", content: "Local markdown file viewer with split panels" },
   ];
 }
@@ -16,14 +18,20 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const [fileTree, setFileTree] = useState<TreeNode[] | null>(null);
   const { panels, setPanels, panelCount, setPanelCount, basePath, setBasePath, initialized } = usePersistedPanels();
+  const { patterns: ignorePatterns, setPatterns: setIgnorePatterns, initialized: ignorePatternsInitialized } = useIgnorePatterns();
+  const { theme, setTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const restoredRef = useRef(false);
 
   // Restore file tree from persisted basePath on mount
   useEffect(() => {
-    if (!initialized || restoredRef.current || !basePath) return;
+    if (!initialized || !ignorePatternsInitialized || restoredRef.current || !basePath) return;
     restoredRef.current = true;
-    fetch(`/api/file-tree?path=${encodeURIComponent(basePath)}`)
+    const params = new URLSearchParams({ path: basePath });
+    if (ignorePatterns.length > 0) {
+      params.set("ignore", ignorePatterns.join(","));
+    }
+    fetch(`/api/file-tree?${params}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
@@ -31,7 +39,7 @@ export default function Home() {
         }
       })
       .catch(() => {});
-  }, [initialized, basePath]);
+  }, [initialized, ignorePatternsInitialized, basePath, ignorePatterns]);
 
   const handleTreeLoaded = useCallback((tree: TreeNode[], path: string) => {
     setFileTree(tree.length > 0 ? tree : null);
@@ -93,11 +101,16 @@ export default function Home() {
           onFileClick={handleFileClick}
           error={error}
           onError={setError}
+          ignorePatterns={ignorePatterns}
+          onIgnorePatternsChange={setIgnorePatterns}
+          theme={theme}
+          onThemeChange={setTheme}
         />
         <PanelContainer
           panels={panels}
           basePath={basePath}
           onCloseFile={handleCloseFile}
+          onFileClick={handleFileClick}
           panelCount={panelCount}
           onPanelCountChange={setPanelCount}
         />

@@ -1,4 +1,4 @@
-# My-MD
+# 3plit
 
 로컬 마크다운 파일을 브라우저에서 탐색하고 읽을 수 있는 뷰어입니다. 최대 3개의 리사이즈 가능한 패널에서 파일을 동시에 열어 비교하며 읽을 수 있습니다.
 
@@ -72,6 +72,6 @@ app/
 ## Docker 배포
 
 ```bash
-docker build -t my-md .
-docker run -p 3000:3000 my-md
+docker build -t 3plit .
+docker run -p 3000:3000 3plit
 ```

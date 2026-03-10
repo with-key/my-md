@@ -6,6 +6,7 @@ interface PanelContainerProps {
   panels: PanelState[];
   basePath: string;
   onCloseFile: (panelId: string) => void;
+  onFileClick: (filePath: string, fileName: string) => void;
   panelCount: number;
   onPanelCountChange: (count: number) => void;
 }
@@ -14,6 +15,7 @@ interface AllotmentWrapperProps {
   panels: PanelState[];
   basePath: string;
   onCloseFile: (panelId: string) => void;
+  onFileClick: (filePath: string, fileName: string) => void;
 }
 
 const AllotmentWrapper = lazy(() =>
@@ -22,6 +24,7 @@ const AllotmentWrapper = lazy(() =>
       panels,
       basePath,
       onCloseFile,
+      onFileClick,
     }: AllotmentWrapperProps) {
       return (
         <mod.Allotment>
@@ -31,6 +34,7 @@ const AllotmentWrapper = lazy(() =>
                 panel={panel}
                 basePath={basePath}
                 onClose={() => onCloseFile(panel.id)}
+                onFileClick={onFileClick}
               />
             </mod.Allotment.Pane>
           ))}
@@ -44,6 +48,7 @@ export function PanelContainer({
   panels,
   basePath,
   onCloseFile,
+  onFileClick,
   panelCount,
   onPanelCountChange,
 }: PanelContainerProps) {
@@ -85,6 +90,7 @@ export function PanelContainer({
               panels={visiblePanels}
               basePath={basePath}
               onCloseFile={onCloseFile}
+              onFileClick={onFileClick}
             />
           </Suspense>
         ) : (

@@ -10,9 +10,10 @@ interface PanelProps {
   panel: PanelState;
   basePath: string;
   onClose: () => void;
+  onFileClick: (filePath: string, fileName: string) => void;
 }
 
-export function Panel({ panel, basePath, onClose }: PanelProps) {
+export function Panel({ panel, basePath, onClose, onFileClick }: PanelProps) {
   const [content, setContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +78,13 @@ export function Panel({ panel, basePath, onClose }: PanelProps) {
             {error}
           </div>
         )}
-        {!isLoading && !error && content && <MarkdownRenderer content={content} />}
+        {!isLoading && !error && content && (
+          <MarkdownRenderer
+            content={content}
+            currentFilePath={panel.filePath}
+            onLinkClick={onFileClick}
+          />
+        )}
         {!isLoading && !error && !content && <PanelPlaceholder />}
       </div>
     </div>

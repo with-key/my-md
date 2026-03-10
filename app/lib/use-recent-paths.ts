@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
-const STORAGE_KEY = "md-viewer:recent-paths";
+const STORAGE_KEY = "3plit:recent-paths";
 const MAX_ITEMS = 5;
 
 export function useRecentPaths() {

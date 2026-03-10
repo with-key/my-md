@@ -1,10 +1,11 @@
-import { readDirectoryTree } from "~/server/file-system.server";
+import { readDirectoryTree, createIgnoreMatcher } from "~/server/file-system.server";
 import { validateDirectoryPath } from "~/server/path-validator.server";
 import type { Route } from "./+types/api.file-tree";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const dirPath = url.searchParams.get("path");
+  const ignoreParam = url.searchParams.get("ignore");
 
   if (!dirPath) {
     return Response.json(
@@ -22,7 +23,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   try {
-    const tree = await readDirectoryTree(validated);
+    const ignorePatterns = ignoreParam ? ignoreParam.split(",").map((p) => p.trim()) : [];
+    const isIgnored = createIgnoreMatcher(ignorePatterns);
+    const tree = await readDirectoryTree(validated, 0, isIgnored);
     return Response.json({ tree, basePath: validated });
   } catch {
     return Response.json(

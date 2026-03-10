@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import type { PanelState } from "~/lib/types";
 
-const STORAGE_KEY = "md-viewer:panel-state";
+const STORAGE_KEY = "3plit:panel-state";
 
 interface PersistedState {
   panels: PanelState[];

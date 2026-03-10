@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import picomatch from "picomatch";
 import type { TreeNode } from "~/lib/types";
 
 const MAX_DEPTH = 5;
@@ -11,7 +12,8 @@ function isMarkdownFile(name: string): boolean {
 
 export async function readDirectoryTree(
   dirPath: string,
-  depth = 0
+  depth = 0,
+  isIgnored?: picomatch.Matcher
 ): Promise<TreeNode[]> {
   if (depth >= MAX_DEPTH) return [];
 
@@ -25,10 +27,12 @@ export async function readDirectoryTree(
   const nodes: TreeNode[] = [];
 
   for (const entry of entries) {
+    if (isIgnored && isIgnored(entry.name)) continue;
+
     const fullPath = path.join(dirPath, entry.name);
 
     if (entry.isDirectory() && !entry.isSymbolicLink()) {
-      const children = await readDirectoryTree(fullPath, depth + 1);
+      const children = await readDirectoryTree(fullPath, depth + 1, isIgnored);
       if (children.length > 0) {
         nodes.push({
           name: entry.name,
@@ -50,6 +54,12 @@ export async function readDirectoryTree(
     if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
+}
+
+export function createIgnoreMatcher(patterns: string[]): picomatch.Matcher | undefined {
+  const valid = patterns.filter((p) => p.trim());
+  if (valid.length === 0) return undefined;
+  return picomatch(valid, { dot: true });
 }
 
 export async function readFileContent(filePath: string): Promise<string> {

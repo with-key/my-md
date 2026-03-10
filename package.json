@@ -1,5 +1,5 @@
 {
-  "name": "md-viewer",
+  "name": "3plit",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,18 +16,22 @@
     "@tailwindcss/typography": "^0.5.19",
     "allotment": "^1.20.5",
     "isbot": "^5.1.31",
+    "picomatch": "^4.0.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
     "react-router": "7.12.0",
     "rehype-raw": "^7.0.0",
+    "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
-    "shiki": "^4.0.2"
+    "shiki": "^4.0.2",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@react-router/dev": "7.12.0",
     "@tailwindcss/vite": "^4.1.13",
     "@types/node": "^22",
+    "@types/picomatch": "^4.0.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.1.13",
