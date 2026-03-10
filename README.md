@@ -1,87 +1,77 @@
-# Welcome to React Router!
+# My-MD
 
-A modern, production-ready template for building full-stack React applications using React Router.
+로컬 마크다운 파일을 브라우저에서 탐색하고 읽을 수 있는 뷰어입니다. 최대 3개의 리사이즈 가능한 패널에서 파일을 동시에 열어 비교하며 읽을 수 있습니다.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## 주요 기능
 
-## Features
+- **파일 트리 탐색** — 로컬 디렉토리 경로를 입력하면 `.md` / `.markdown` 파일을 트리 구조로 표시
+- **멀티 패널** — 최대 3개 패널을 나란히 배치하여 여러 문서를 동시에 확인 (리사이즈 가능)
+- **드래그 & 드롭** — 파일 트리에서 원하는 패널로 파일을 끌어다 놓기
+- **코드 하이라이팅** — Shiki 기반 구문 강조 (언어 자동 감지, lazy loading)
+- **다크 모드** — 라이트/다크 테마 자동 지원
+- **상태 유지** — 마지막으로 연 디렉토리, 패널 상태, 최근 경로가 localStorage에 저장되어 새로고침 후에도 복원
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## 시작하기
 
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+### 설치
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
+### 개발 서버 실행
 
 ```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+`http://localhost:5173`에서 앱에 접근할 수 있습니다.
 
-## Building for Production
-
-Create a production build:
+### 프로덕션 빌드
 
 ```bash
 npm run build
+npm start
 ```
 
-## Deployment
+## 사용 방법
 
-### Docker Deployment
+1. 앱을 실행한 뒤 좌측 사이드바의 입력란에 마크다운 파일이 있는 **로컬 디렉토리 경로**를 입력합니다.
+2. 파일 트리가 로드되면 **파일을 클릭**하여 패널에서 열 수 있습니다.
+3. 상단의 패널 개수 버튼(1 / 2 / 3)으로 **패널 레이아웃을 변경**할 수 있습니다.
+4. 파일 트리에서 파일을 **드래그하여 원하는 패널에 드롭**하면 해당 패널에서 파일이 열립니다.
+5. 패널 사이의 구분선을 드래그하여 **패널 크기를 조절**할 수 있습니다.
+6. 최근 열었던 경로는 사이드바에 **최근 경로 목록**으로 저장되어 빠르게 다시 접근할 수 있습니다.
 
-To build and run using Docker:
+## 기술 스택
+
+| 분류 | 기술 |
+|------|------|
+| 프레임워크 | React 19 + React Router v7 (SSR) |
+| 빌드 | Vite 7, TypeScript 5.9 |
+| 스타일링 | Tailwind CSS v4, @tailwindcss/typography |
+| 마크다운 | react-markdown, remark-gfm, rehype-raw |
+| 코드 하이라이팅 | Shiki (dual theme: github-light / github-dark) |
+| 패널 레이아웃 | allotment (lazy loaded) |
+| 드래그 & 드롭 | @dnd-kit/core |
+
+## 프로젝트 구조
+
+```
+app/
+├── components/
+│   ├── sidebar/      # 디렉토리 입력, 파일 트리, 최근 경로
+│   ├── panels/       # 패널 컨테이너, 개별 패널, 툴바
+│   ├── markdown/     # 마크다운 렌더러, 코드 블록
+│   └── dnd/          # 드래그 & 드롭 컨텍스트
+├── lib/              # 타입 정의, 커스텀 훅
+├── routes/           # 페이지 및 API 라우트
+└── server/           # 파일 시스템 접근, 경로 검증
+```
+
+## Docker 배포
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+docker build -t my-md .
+docker run -p 3000:3000 my-md
 ```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
